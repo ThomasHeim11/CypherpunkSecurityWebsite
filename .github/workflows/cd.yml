@@ -89,7 +89,7 @@ jobs:
           NEXT_PUBLIC_ENVIRONMENT: staging
 
       - name: 🚀 Deploy to Netlify (Staging)
-        uses: nwtgck/actions-netlify@v2.1
+        uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: './out'
           production-branch: main
@@ -147,7 +147,7 @@ jobs:
           du -sh .next/ || true
 
       - name: 🚀 Deploy to Netlify (Production)
-        uses: nwtgck/actions-netlify@v2.1
+        uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: './out'
           production-deploy: true
