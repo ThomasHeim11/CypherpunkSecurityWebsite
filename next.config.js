@@ -18,11 +18,13 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
-  // Suppress webpack warnings
+  // Webpack customizations for production only
   webpack: (config, { dev, isServer }) => {
-    if (dev) {
-      config.devtool = 'cheap-module-source-map';
+    // Only apply custom devtool in production for smaller bundles
+    if (!dev && !isServer) {
+      config.devtool = false; // Disable source maps in production for security
     }
+    // Let Next.js use optimal devtool in development
     return config;
   },
 };
