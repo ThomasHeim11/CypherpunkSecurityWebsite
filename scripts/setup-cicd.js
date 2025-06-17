@@ -141,40 +141,29 @@ function setupLintStaged() {
 }
 
 /**
- * Create environment files
+ * Verify configuration files
  */
-function createEnvironmentFiles() {
-  log.step('Creating Environment Configuration Files');
+function verifyConfigurationFiles() {
+  log.step('Verifying Configuration Files');
 
-  // Create .env.example
-  const envExample = `# CypherpunkSecurity Environment Variables
-
-# Application
-NODE_ENV=development
-NEXT_PUBLIC_ENVIRONMENT=development
-
-# Analytics (optional)
-NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=your-ga-id-here
-
-# Contact Form (optional)
-NEXT_PUBLIC_CONTACT_API_URL=https://api.example.com/contact
-
-# Security Headers
-NEXT_PUBLIC_CSP_REPORT_URI=https://your-domain.report-uri.com/r/d/csp/enforce
-`;
-
-  if (!fs.existsSync('.env.example')) {
-    fs.writeFileSync('.env.example', envExample);
-    log.success('Created .env.example file');
+  // Check that constants/data.ts exists and contains the required configuration
+  if (!fs.existsSync('constants/data.ts')) {
+    log.error('constants/data.ts file is missing');
+    throw new Error('Configuration file missing');
   }
 
-  if (!fs.existsSync('.env.local')) {
-    fs.writeFileSync(
-      '.env.local',
-      '# Local environment variables\n# Copy from .env.example and customize\n'
-    );
-    log.success('Created .env.local file');
+  const dataContent = fs.readFileSync('constants/data.ts', 'utf8');
+
+  // Verify that the file contains the basic configuration structure
+  if (
+    !dataContent.includes('export const config') ||
+    !dataContent.includes('export const urls')
+  ) {
+    log.error('constants/data.ts appears to be missing required configuration');
+    throw new Error('Invalid configuration file');
   }
+
+  log.success('Configuration files verified successfully');
 }
 
 /**
@@ -286,7 +275,7 @@ async function main() {
     installDependencies();
     setupHusky();
     setupLintStaged();
-    createEnvironmentFiles();
+    verifyConfigurationFiles();
     runInitialTests();
     testBuild();
 
