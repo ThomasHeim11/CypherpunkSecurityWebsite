@@ -1,0 +1,69 @@
+name: 🔧 Setup Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1' # Weekly on Monday
+
+jobs:
+  setup-check:
+    name: 🔍 Check CI/CD Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Check Required Secrets
+        run: |
+          echo "# 🔧 CI/CD Setup Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret | Status | Purpose |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+
+          # Check SNYK_TOKEN
+          if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
+            echo "| SNYK_TOKEN | ✅ Configured | Vulnerability scanning |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| SNYK_TOKEN | ❌ Missing | Vulnerability scanning |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check CODECOV_TOKEN
+          if [ -n "${{ secrets.CODECOV_TOKEN }}" ]; then
+            echo "| CODECOV_TOKEN | ✅ Configured | Test coverage reports |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| CODECOV_TOKEN | ❌ Missing | Test coverage reports |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check SLACK_WEBHOOK
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            echo "| SLACK_WEBHOOK | ✅ Configured | Build notifications |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| SLACK_WEBHOOK | ❌ Missing | Build notifications |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check SEMGREP_APP_TOKEN
+          if [ -n "${{ secrets.SEMGREP_APP_TOKEN }}" ]; then
+            echo "| SEMGREP_APP_TOKEN | ✅ Configured | Advanced SAST scanning |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| SEMGREP_APP_TOKEN | ❌ Missing | Advanced SAST scanning |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Setup Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Required for Full Functionality:" >> $GITHUB_STEP_SUMMARY
+          echo "1. **SNYK_TOKEN**: Get from https://snyk.io → Account Settings → API Token" >> $GITHUB_STEP_SUMMARY
+          echo "2. **CODECOV_TOKEN**: Get from https://codecov.io → Add Repository" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Optional (Enhanced Features):" >> $GITHUB_STEP_SUMMARY
+          echo "3. **SLACK_WEBHOOK**: Get from https://api.slack.com/apps → Incoming Webhooks" >> $GITHUB_STEP_SUMMARY
+          echo "4. **SEMGREP_APP_TOKEN**: Get from https://semgrep.dev → Settings" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Add secrets at:** Repository Settings → Secrets and variables → Actions" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📊 Environment Info
+        run: |
+          echo "## 🌍 Environment Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner OS**: ${{ runner.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node.js**: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM**: $(npm --version)" >> $GITHUB_STEP_SUMMARY
