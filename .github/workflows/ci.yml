@@ -122,18 +122,11 @@ jobs:
         run: npm audit --audit-level=moderate
 
       - name: 🔐 Snyk Security Scan
-        if: env.SNYK_TOKEN != ''
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high
-
-      - name: ⚠️ Snyk Token Missing
-        if: env.SNYK_TOKEN == ''
-        run: |
-          echo "⚠️ SNYK_TOKEN not configured. Skipping Snyk scan."
-          echo "To enable: Get token from https://snyk.io and add as repository secret"
 
   # ===========================
   # COMPREHENSIVE TESTING
@@ -160,21 +153,12 @@ jobs:
         run: npm run test:ci
 
       - name: 📊 Upload Coverage Reports
-        if: env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
-
-      - name: ℹ️ Coverage Upload Skipped
-        if: env.CODECOV_TOKEN == ''
-        run: |
-          echo "ℹ️ CODECOV_TOKEN not configured. Coverage reports generated locally only."
-          echo "To enable: Get token from https://codecov.io and add as repository secret"
 
       - name: 💾 Archive Test Results
         uses: actions/upload-artifact@v4
@@ -332,13 +316,11 @@ jobs:
     needs: [quality-gate]
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
-      - name: 📢 Slack Notification
-        uses: 8398a7/action-slack@v3
-        if: always()
-        continue-on-error: true
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        with:
-          status: ${{ needs.quality-gate.result }}
-          channel: '#deployments'
-          fields: repo,commit,author,action,eventName,ref,workflow
+      - name: 📊 Build Summary
+        run: |
+          echo "## 🚀 Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Quality Gate**: ${{ needs.quality-gate.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

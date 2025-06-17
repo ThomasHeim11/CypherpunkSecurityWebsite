@@ -303,17 +303,15 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Scan completed at:** $(date)" >> $GITHUB_STEP_SUMMARY
 
-      - name: 📢 Security Alert Notification
+      - name: 🚨 Security Alert Summary
         if: failure()
-        continue-on-error: true
-        uses: 8398a7/action-slack@v3
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        with:
-          status: failure
-          channel: '#security-alerts'
-          fields: repo,commit,author,action,eventName,ref,workflow
-          text: '🚨 Security scan FAILED - immediate attention required!'
+        run: |
+          echo "## 🚨 Security Alert" >> $GITHUB_STEP_SUMMARY
+          echo "**Security scan FAILED - immediate attention required!**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **View Details**: [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
       - name: 📊 Create Security Issue
         if: failure()
