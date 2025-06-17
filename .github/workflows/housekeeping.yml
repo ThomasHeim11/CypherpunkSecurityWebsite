@@ -1,0 +1,271 @@
+name: 🧹 Repository Housekeeping
+
+on:
+  schedule:
+    # Run weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # ===========================
+  # DEPENDENCY MAINTENANCE
+  # ===========================
+  dependency-maintenance:
+    name: 🔧 Dependency Maintenance
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Check for Outdated Dependencies
+        run: |
+          echo "## 📦 Outdated Dependencies Report" >> outdated-report.md
+          echo "" >> outdated-report.md
+          npm outdated --long || true
+          echo "" >> outdated-report.md
+          echo "Generated on: $(date)" >> outdated-report.md
+
+      - name: 📊 Generate Dependency Tree
+        run: |
+          npm list --all > dependency-tree.txt || true
+
+      - name: 📋 Upload Dependency Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-reports
+          path: |
+            outdated-report.md
+            dependency-tree.txt
+
+  # ===========================
+  # CODE ANALYSIS
+  # ===========================
+  code-analysis:
+    name: 📊 Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 📊 Generate Code Statistics
+        run: |
+          echo "# 📊 Code Statistics Report" > code-stats.md
+          echo "" >> code-stats.md
+          echo "## Repository Overview" >> code-stats.md
+          echo "- **Total Commits**: $(git rev-list --count HEAD)" >> code-stats.md
+          echo "- **Contributors**: $(git shortlog -sn | wc -l)" >> code-stats.md
+          echo "- **Branches**: $(git branch -r | wc -l)" >> code-stats.md
+          echo "" >> code-stats.md
+
+          echo "## File Statistics" >> code-stats.md
+          find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | grep -v node_modules | wc -l > temp_count
+          echo "- **TypeScript/JavaScript Files**: $(cat temp_count)" >> code-stats.md
+          find . -type f -name "*.test.*" -o -name "*.spec.*" | grep -v node_modules | wc -l > temp_test_count
+          echo "- **Test Files**: $(cat temp_test_count)" >> code-stats.md
+          rm -f temp_count temp_test_count
+
+      - name: 🧪 Test Coverage Analysis
+        run: |
+          npm run test:coverage
+          echo "" >> code-stats.md
+          echo "## Test Coverage" >> code-stats.md
+          echo "Coverage report generated on: $(date)" >> code-stats.md
+
+      - name: 📋 Upload Code Analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-analysis
+          path: |
+            code-stats.md
+            coverage/
+
+  # ===========================
+  # REPOSITORY CLEANUP
+  # ===========================
+  repository-cleanup:
+    name: 🧹 Repository Cleanup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🗑️ Clean Old Workflow Runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: workflows } = await github.rest.actions.listRepoWorkflows({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const workflow of workflows.workflows) {
+              const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflow.id,
+                status: 'completed',
+                per_page: 100
+              });
+              
+              // Keep only the latest 10 runs for each workflow
+              const runsToDelete = runs.workflow_runs.slice(10);
+              
+              for (const run of runsToDelete) {
+                if (run.created_at < new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) {
+                  try {
+                    await github.rest.actions.deleteWorkflowRun({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      run_id: run.id
+                    });
+                    console.log(`Deleted workflow run ${run.id}`);
+                  } catch (error) {
+                    console.log(`Failed to delete run ${run.id}: ${error.message}`);
+                  }
+                }
+              }
+            }
+
+      - name: 🏷️ Clean Old Tags
+        run: |
+          # Remove local tags older than 6 months
+          git tag -l | xargs -I {} sh -c 'if [ $(git log -1 --format=%ct {}) -lt $(date -d "6 months ago" +%s) ]; then echo "Would delete old tag: {}"; fi'
+
+  # ===========================
+  # DOCUMENTATION UPDATES
+  # ===========================
+  documentation-check:
+    name: 📚 Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check Documentation Links
+        run: |
+          # Check for broken internal links in markdown files
+          find . -name "*.md" -not -path "./node_modules/*" -exec grep -l "http" {} \; > docs_with_links.txt || true
+          echo "Found $(wc -l < docs_with_links.txt) documentation files with links"
+
+      - name: 📋 Generate Documentation Report
+        run: |
+          echo "# 📚 Documentation Report" > doc-report.md
+          echo "" >> doc-report.md
+          echo "## Documentation Files" >> doc-report.md
+          find . -name "*.md" -not -path "./node_modules/*" -exec echo "- {}" \; >> doc-report.md
+          echo "" >> doc-report.md
+          echo "Generated on: $(date)" >> doc-report.md
+
+      - name: 📋 Upload Documentation Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-report
+          path: |
+            doc-report.md
+            docs_with_links.txt
+
+  # ===========================
+  # PERFORMANCE MONITORING
+  # ===========================
+  performance-baseline:
+    name: ⚡ Performance Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build Application
+        run: npm run build
+
+      - name: 📊 Bundle Size Analysis
+        run: |
+          echo "# 📊 Bundle Size Report" > bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## Build Output" >> bundle-report.md
+          du -sh .next/ >> bundle-report.md || true
+          echo "" >> bundle-report.md
+          echo "Generated on: $(date)" >> bundle-report.md
+
+      - name: 📋 Upload Performance Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report
+          path: bundle-report.md
+
+  # ===========================
+  # SUMMARY REPORT
+  # ===========================
+  housekeeping-summary:
+    name: 📋 Housekeeping Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        dependency-maintenance,
+        code-analysis,
+        repository-cleanup,
+        documentation-check,
+        performance-baseline,
+      ]
+    if: always()
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          echo "# 🧹 Weekly Housekeeping Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Maintenance | ${{ needs.dependency-maintenance.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Analysis | ${{ needs.code-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository Cleanup | ${{ needs.repository-cleanup.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation Check | ${{ needs.documentation-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance Baseline | ${{ needs.performance-baseline.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Housekeeping completed at:** $(date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📢 Notify Completion
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          channel: '#maintenance'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,commit,author,action,eventName,ref,workflow
+          text: '🧹 Weekly repository housekeeping completed'

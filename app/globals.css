@@ -1,0 +1,479 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scroll behavior and page load fixes */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ensure page always starts at top */
+html,
+body {
+  scroll-behavior: auto !important;
+}
+
+/* Prevent layout shift during load */
+* {
+  box-sizing: border-box;
+}
+
+/* Fix for scroll restoration */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  /* Improve touch targets */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better text readability on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Optimize grid background for mobile */
+  body {
+    background-size: 100% 100%, 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+  }
+
+  /* Reduce animations on mobile for performance */
+  * {
+    animation-duration: 0.5s !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  body {
+    background-size: 100% 100%, 100% 100%, 100% 100%, 25px 25px, 25px 25px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper borders and effects on retina displays */
+  .glass-effect {
+    border-width: 0.5px;
+  }
+}
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap");
+
+@layer base {
+  * {
+    border-color: rgb(38, 38, 38);
+  }
+
+  html {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
+    background-image: 
+      /* Matrix rain effect */ radial-gradient(
+        circle at 20% 80%,
+        rgba(0, 255, 148, 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(0, 217, 255, 0.04) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(189, 0, 255, 0.03) 0%,
+        transparent 50%
+      ),
+      /* Cyber grid */
+        linear-gradient(rgba(0, 255, 148, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 148, 0.08) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Matrix digital rain background effect */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+      transparent 70%,
+      rgba(0, 255, 148, 0.02) 70%,
+      rgba(0, 255, 148, 0.02) 85%,
+      transparent 85%
+    );
+    background-size: 100% 200px;
+    animation: matrix-rain 30s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes matrix-rain {
+    0% {
+      transform: translateY(-200px);
+    }
+    100% {
+      transform: translateY(100vh);
+    }
+  }
+
+  /* Enhanced scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #111111;
+    border-left: 1px solid rgba(0, 255, 148, 0.2);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ff94 0%, #00d9ff 100%);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00ff94 0%, #bd00ff 100%);
+  }
+}
+
+@layer components {
+  /* Enhanced cyber border with animated glow */
+  .cyber-border {
+    border: 1px solid rgba(0, 255, 148, 0.4);
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(26, 26, 26, 0.6) 100%
+    );
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cyber-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(0, 255, 148, 0.1),
+      transparent
+    );
+    animation: scan 6s linear infinite;
+  }
+
+  @keyframes scan {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* Enhanced cyber button */
+  .cyber-button {
+    padding: 1rem 2rem;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 255, 148, 0.1) 0%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    border: 2px solid #00ff94;
+    color: #00ff94;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px currentColor;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 100%, 20px 100%);
+  }
+
+  .cyber-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(0, 255, 148, 0.3),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .cyber-button:hover::before {
+    left: 100%;
+  }
+
+  .cyber-button:hover {
+    background: linear-gradient(135deg, #00ff94 0%, #00d9ff 100%);
+    color: #000000;
+    box-shadow: 0 0 30px #00ff94, 0 0 60px rgba(0, 255, 148, 0.5),
+      inset 0 0 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Enhanced glow effects */
+  .cyber-glow {
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor,
+      0 0 15px currentColor;
+  }
+
+  .neon-glow {
+    text-shadow: 0 0 5px #00ff94, 0 0 10px #00ff94, 0 0 20px #00ff94,
+      0 0 40px #00ff94;
+  }
+
+  /* Terminal window effect */
+  .terminal-window {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(26, 26, 26, 0.9) 100%
+    );
+    border: 1px solid rgba(0, 255, 148, 0.3);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 148, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .terminal-window::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(90deg, #333333 0%, #444444 50%, #333333 100%);
+    border-bottom: 1px solid rgba(0, 255, 148, 0.2);
+  }
+
+  /* Code block styling */
+  .code-block {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(0, 255, 148, 0.2);
+    border-radius: 4px;
+    padding: 1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.875rem;
+    color: #00ff94;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .code-block::before {
+    content: "$ ";
+    color: #00d9ff;
+    font-weight: bold;
+  }
+
+  /* Enhanced glass effect */
+  .glass-effect {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(26, 26, 26, 0.5) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Enhanced metric cards */
+  .metric-card {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(26, 26, 26, 0.6) 50%,
+      rgba(0, 0, 0, 0.9) 100%
+    );
+    border: 1px solid rgba(0, 255, 148, 0.3);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff94, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .metric-card:hover {
+    border-color: rgba(0, 255, 148, 0.6);
+    background: linear-gradient(
+      135deg,
+      rgba(0, 255, 148, 0.05) 0%,
+      rgba(26, 26, 26, 0.8) 50%,
+      rgba(0, 0, 0, 0.95) 100%
+    );
+    box-shadow: 0 10px 30px rgba(0, 255, 148, 0.2),
+      0 0 40px rgba(0, 255, 148, 0.1);
+    transform: translateY(-5px);
+  }
+
+  .metric-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Blockchain-inspired animations */
+  @keyframes blockchain-pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  .blockchain-node {
+    animation: blockchain-pulse 2s ease-in-out infinite;
+  }
+
+  /* Security badge effect */
+  .security-badge {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 255, 148, 0.1) 0%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    border: 1px solid rgba(0, 255, 148, 0.4);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #00ff94;
+    text-shadow: 0 0 10px currentColor;
+    box-shadow: 0 0 15px rgba(0, 255, 148, 0.3);
+  }
+
+  /* Enhanced section styling */
+  .section-padding {
+    padding: 6rem 1rem;
+    position: relative;
+  }
+
+  @media (min-width: 640px) {
+    .section-padding {
+      padding: 6rem 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-padding {
+      padding: 8rem 2rem;
+    }
+  }
+
+  /* Cyberpunk separator */
+  .cyber-separator {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 255, 148, 0.3) 20%,
+      rgba(0, 255, 148, 0.8) 50%,
+      rgba(0, 255, 148, 0.3) 80%,
+      transparent 100%
+    );
+    margin: 3rem 0;
+    position: relative;
+  }
+
+  .cyber-separator::before,
+  .cyber-separator::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    background: #00ff94;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 10px #00ff94;
+  }
+
+  .cyber-separator::before {
+    left: 0;
+  }
+
+  .cyber-separator::after {
+    right: 0;
+  }
+}
+
+/* Hide Next.js development indicators */
+[data-nextjs-dialog-overlay],
+[data-nextjs-toast],
+.__next-dev-overlay-left,
+.__next-dev-overlay-right,
+[data-nextjs-dialog],
+nextjs-portal {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Hide any bottom-left development indicators */
+div[style*="position: fixed"][style*="bottom"][style*="left"] {
+  display: none !important;
+}

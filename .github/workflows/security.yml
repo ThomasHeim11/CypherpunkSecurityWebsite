@@ -1,0 +1,277 @@
+name: 🛡️ Security Scanning
+
+on:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # ===========================
+  # DEPENDENCY SCANNING
+  # ===========================
+  dependency-scan:
+    name: 🔍 Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔒 NPM Security Audit
+        run: npm audit --audit-level=moderate --json > npm-audit.json || true
+
+      - name: 🔍 Upload NPM Audit Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-audit-results
+          path: npm-audit.json
+
+      - name: 🔐 Snyk Dependency Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --json > snyk-results.json || true
+
+      - name: 📊 Upload Snyk Results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+          category: snyk-dependencies
+
+  # ===========================
+  # SAST (Static Analysis)
+  # ===========================
+  sast-scan:
+    name: 🔍 Static Application Security Testing
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      matrix:
+        language: [javascript]
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{matrix.language}}'
+
+      - name: 🔐 Semgrep Security Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+          publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
+          generateSarif: '1'
+
+      - name: 📊 Upload Semgrep results to GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+  # ===========================
+  # SECRETS SCANNING
+  # ===========================
+  secrets-scan:
+    name: 🔐 Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 TruffleHog OSS Secrets Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: 🔐 GitLeaks Secrets Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # ===========================
+  # CONTAINER SECURITY
+  # ===========================
+  container-scan:
+    name: 🐳 Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Build Docker Image
+        run: |
+          cat > Dockerfile.security << EOF
+          FROM node:18-alpine
+          WORKDIR /app
+          COPY package*.json ./
+          RUN npm ci --only=production
+          COPY . .
+          RUN npm run build
+          EXPOSE 3000
+          CMD ["npm", "start"]
+          EOF
+          docker build -f Dockerfile.security -t cypherpunk-security:${{ github.sha }} .
+
+      - name: 🔍 Trivy Container Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'cypherpunk-security:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📊 Upload Trivy scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-container'
+
+  # ===========================
+  # LICENSE COMPLIANCE
+  # ===========================
+  license-scan:
+    name: 📜 License Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 📜 License Check
+        run: |
+          npx license-checker --production --json > licenses.json
+          npx license-checker --production --summary
+
+      - name: 🚫 Check for Prohibited Licenses
+        run: |
+          # Define prohibited licenses
+          PROHIBITED_LICENSES=("GPL-3.0" "AGPL-3.0" "LGPL-3.0")
+
+          for license in "${PROHIBITED_LICENSES[@]}"; do
+            if grep -q "$license" licenses.json; then
+              echo "❌ Prohibited license found: $license"
+              exit 1
+            fi
+          done
+          echo "✅ No prohibited licenses found"
+
+      - name: 📊 Upload License Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: licenses.json
+
+  # ===========================
+  # SECURITY REPORTING
+  # ===========================
+  security-report:
+    name: 📊 Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, sast-scan, secrets-scan, license-scan]
+    if: always()
+    steps:
+      - name: 📊 Generate Security Summary
+        run: |
+          echo "# 🛡️ Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST Scan | ${{ needs.sast-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Scan | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| License Compliance | ${{ needs.license-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan completed at:** $(date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📢 Security Alert Notification
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#security-alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,commit,author,action,eventName,ref,workflow
+          text: '🚨 Security scan FAILED - immediate attention required!'
+
+      - name: 📊 Create Security Issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Security Scan Failure - ${new Date().toISOString()}`,
+              body: `
+              ## Security Scan Failure Report
+              
+              **Repository:** ${{ github.repository }}
+              **Commit:** ${{ github.sha }}
+              **Branch:** ${{ github.ref }}
+              **Workflow:** ${{ github.workflow }}
+              **Run ID:** ${{ github.run_id }}
+              
+              **Failed Checks:**
+              - Dependency Scan: ${{ needs.dependency-scan.result }}
+              - SAST Scan: ${{ needs.sast-scan.result }}
+              - Secrets Scan: ${{ needs.secrets-scan.result }}
+              - License Compliance: ${{ needs.license-scan.result }}
+              
+              Please review the security findings and take immediate action to remediate any critical vulnerabilities.
+              
+              [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              `,
+              labels: ['security', 'urgent', 'bug']
+            })

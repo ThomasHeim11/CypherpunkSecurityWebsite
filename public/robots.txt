@@ -1,0 +1,37 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /.well-known/
+Disallow: /private/
+Disallow: /internal/
+Disallow: /test/
+Disallow: /staging/
+Disallow: /dev/
+
+# Security-related paths
+Disallow: /config/
+Disallow: /logs/
+Disallow: /backup/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Allow security.txt for responsible disclosure
+Allow: /.well-known/security.txt
+
+Sitemap: https://cypherpunksecurity.com/sitemap.xml
+
+# Crawl-delay for aggressive bots
+User-agent: *
+Crawl-delay: 1
+
+# Block known malicious bots
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: / 

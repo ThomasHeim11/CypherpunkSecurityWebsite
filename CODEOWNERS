@@ -1,0 +1,30 @@
+# Global ownership
+* @thomasheim
+
+# Critical configuration files
+/.github/ @thomasheim
+/package.json @thomasheim
+/package-lock.json @thomasheim
+/tsconfig.json @thomasheim
+/next.config.js @thomasheim
+/tailwind.config.js @thomasheim
+/jest.config.js @thomasheim
+
+# Security and CI/CD files
+/.github/workflows/ @thomasheim
+/.github/dependabot.yml @thomasheim
+/scripts/ @thomasheim
+/netlify.toml @thomasheim
+
+# Core application files
+/app/ @thomasheim
+/components/ @thomasheim
+/lib/ @thomasheim
+/types/ @thomasheim
+
+# Test files
+/__tests__/ @thomasheim
+
+# Documentation
+/README.md @thomasheim
+/docs/ @thomasheim 
