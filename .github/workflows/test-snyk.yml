@@ -1,0 +1,54 @@
+name: 🧪 Test Snyk Token
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-snyk:
+    name: 🔍 Test Snyk Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Test Snyk Token
+        run: |
+          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
+            echo "❌ SNYK_TOKEN secret is not configured"
+            echo "Please add your Snyk API token as a repository secret"
+            exit 1
+          else
+            echo "✅ SNYK_TOKEN secret is configured"
+            echo "Token length: ${#SNYK_TOKEN} characters"
+          fi
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: 🔐 Test Snyk Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --version
+
+      - name: 🔐 Run Actual Snyk Test
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: test --severity-threshold=high
+
+      - name: ✅ Success
+        run: |
+          echo "## 🎉 Snyk Setup Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "Your Snyk token is working correctly." >> $GITHUB_STEP_SUMMARY
+          echo "You can now delete this test workflow." >> $GITHUB_STEP_SUMMARY
