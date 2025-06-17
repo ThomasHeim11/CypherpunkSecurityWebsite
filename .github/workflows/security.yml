@@ -46,19 +46,36 @@ jobs:
           name: npm-audit-results
           path: npm-audit.json
 
-      - name: 🔐 Snyk Dependency Scan
+      - name: 🔐 Snyk Dependency Scan (JSON)
+        if: env.SNYK_TOKEN != ''
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --json > snyk-results.json || true
 
+      - name: 🔐 Snyk Dependency Scan (SARIF)
+        if: env.SNYK_TOKEN != ''
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif || true
+
       - name: 📊 Upload Snyk Results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('snyk.sarif') != ''
         with:
           sarif_file: snyk.sarif
           category: snyk-dependencies
+
+      - name: ⚠️ Alternative Security Check (No Snyk Token)
+        if: env.SNYK_TOKEN == ''
+        run: |
+          echo "⚠️ Snyk token not configured. Running alternative security checks..."
+          echo "🔍 Running npm audit with high severity threshold..."
+          npm audit --audit-level=high
+          echo "✅ Basic security checks completed"
 
   # ===========================
   # SAST (Static Analysis)
