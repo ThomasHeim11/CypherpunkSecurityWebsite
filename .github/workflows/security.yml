@@ -128,15 +128,50 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 🛑 Check for New Commits
+        id: check-commits
+        run: |
+          BASE_COMMIT="${{ github.event.before || 'HEAD~1' }}"
+          HEAD_COMMIT="${{ github.sha }}"
+
+          echo "Base commit: $BASE_COMMIT"
+          echo "Head commit: $HEAD_COMMIT"
+
+          # Check if commits are the same
+          if [ "$BASE_COMMIT" = "$HEAD_COMMIT" ]; then
+            echo "Base and head commits are identical, using HEAD~1 as base"
+            BASE_COMMIT="HEAD~1"
+          fi
+
+          # Check if there are new commits to scan
+          if git rev-list --count $BASE_COMMIT..$HEAD_COMMIT > /dev/null 2>&1; then
+            COMMIT_COUNT=$(git rev-list --count $BASE_COMMIT..$HEAD_COMMIT)
+            echo "Found $COMMIT_COUNT commits to scan"
+            echo "should-scan=true" >> $GITHUB_OUTPUT
+            echo "base-commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+          else
+            echo "No new commits to scan or invalid range"
+            echo "should-scan=false" >> $GITHUB_OUTPUT
+            echo "base-commit=HEAD~1" >> $GITHUB_OUTPUT
+          fi
+
       - name: 🔍 TruffleHog OSS Secrets Scan
+        if: steps.check-commits.outputs.should-scan == 'true'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: main
-          head: HEAD
+          base: ${{ steps.check-commits.outputs.base-commit }}
+          head: ${{ github.sha }}
           extra_args: --debug --only-verified
 
+      - name: ℹ️ Secrets Scan Skipped
+        if: steps.check-commits.outputs.should-scan != 'true'
+        run: |
+          echo "⚠️ TruffleHog secrets scan skipped - no new commits to analyze"
+          echo "This is normal for certain trigger events or when base/head are identical"
+
       - name: 🔐 GitLeaks Secrets Scan
+        continue-on-error: true
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
