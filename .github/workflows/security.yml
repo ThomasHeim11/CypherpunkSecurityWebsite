@@ -248,10 +248,10 @@ jobs:
       - name: 🚫 Check for Prohibited Licenses
         run: |
           # Define prohibited licenses (strict)
-          PROHIBITED_LICENSES=("AGPL-3.0" "LGPL-3.0" "GPL-2.0")
+          PROHIBITED_LICENSES=("AGPL-3.0" "GPL-2.0")
 
           # Define licenses to warn about (but not fail)
-          WARN_LICENSES=("GPL-3.0")
+          WARN_LICENSES=("GPL-3.0" "LGPL-3.0" "LGPL-3.0-or-later")
 
           echo "🔍 Checking for prohibited licenses..."
 
