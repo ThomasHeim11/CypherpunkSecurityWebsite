@@ -41,7 +41,7 @@ jobs:
         run: npm audit --audit-level=moderate --json > npm-audit.json || true
 
       - name: 🔍 Upload NPM Audit Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: npm-audit-results
           path: npm-audit.json
@@ -208,7 +208,7 @@ jobs:
           echo "✅ No prohibited licenses found"
 
       - name: 📊 Upload License Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: license-report
           path: licenses.json
