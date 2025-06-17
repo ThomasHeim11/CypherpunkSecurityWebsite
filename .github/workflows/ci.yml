@@ -330,8 +330,10 @@ jobs:
       - name: 📢 Slack Notification
         uses: 8398a7/action-slack@v3
         if: always()
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
         with:
           status: ${{ needs.quality-gate.result }}
           channel: '#deployments'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
           fields: repo,commit,author,action,eventName,ref,workflow

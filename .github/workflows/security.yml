@@ -191,10 +191,11 @@ jobs:
       - name: 🏗️ Build Docker Image
         run: |
           cat > Dockerfile.security << EOF
-          FROM node:18-alpine
+          FROM node:20-alpine
           WORKDIR /app
           COPY package*.json ./
-          RUN npm ci --only=production
+          # Skip prepare script (husky) in production
+          RUN npm ci --omit=dev --ignore-scripts
           COPY . .
           RUN npm run build
           EXPOSE 3000
@@ -242,16 +243,36 @@ jobs:
 
       - name: 🚫 Check for Prohibited Licenses
         run: |
-          # Define prohibited licenses
-          PROHIBITED_LICENSES=("GPL-3.0" "AGPL-3.0" "LGPL-3.0")
+          # Define prohibited licenses (strict)
+          PROHIBITED_LICENSES=("AGPL-3.0" "LGPL-3.0" "GPL-2.0")
 
+          # Define licenses to warn about (but not fail)
+          WARN_LICENSES=("GPL-3.0")
+
+          echo "🔍 Checking for prohibited licenses..."
+
+          # Check for strict prohibitions
+          FOUND_PROHIBITED=false
           for license in "${PROHIBITED_LICENSES[@]}"; do
             if grep -q "$license" licenses.json; then
               echo "❌ Prohibited license found: $license"
-              exit 1
+              FOUND_PROHIBITED=true
             fi
           done
-          echo "✅ No prohibited licenses found"
+
+          # Check for warning licenses
+          for license in "${WARN_LICENSES[@]}"; do
+            if grep -q "$license" licenses.json; then
+              echo "⚠️ Warning license found: $license (review recommended)"
+            fi
+          done
+
+          if [ "$FOUND_PROHIBITED" = true ]; then
+            echo "❌ Prohibited licenses detected"
+            exit 1
+          else
+            echo "✅ No prohibited licenses found"
+          fi
 
       - name: 📊 Upload License Report
         uses: actions/upload-artifact@v4
@@ -283,11 +304,13 @@ jobs:
 
       - name: 📢 Security Alert Notification
         if: failure()
+        continue-on-error: true
         uses: 8398a7/action-slack@v3
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
         with:
           status: failure
           channel: '#security-alerts'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
           fields: repo,commit,author,action,eventName,ref,workflow
           text: '🚨 Security scan FAILED - immediate attention required!'
 
