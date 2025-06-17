@@ -1,57 +1,41 @@
 import { getFormUrl, getLinkedInUrl, getXUrl } from '../../lib/urls';
 
 describe('URL Utils', () => {
-  beforeEach(() => {
-    // Reset environment variables
-    process.env.NEXT_PUBLIC_TYPEFORM_URL =
-      'aHR0cHM6Ly9mb3JtLnR5cGVmb3JtLmNvbS90by90ZXN0';
-    process.env.NEXT_PUBLIC_LINKEDIN_URL =
-      'aHR0cHM6Ly93d3cubGlua2VkaW4uY29tL2NvbXBhbnkvdGVzdA==';
-    process.env.NEXT_PUBLIC_X_URL = 'aHR0cHM6Ly94LmNvbS90ZXN0';
-  });
-
   describe('getFormUrl', () => {
-    it('should decode base64 encoded Typeform URL correctly', () => {
+    it('should return the correct Typeform URL', () => {
       const result = getFormUrl();
-      expect(result).toBe('https://form.typeform.com/to/test');
+      expect(result).toBe('https://form.typeform.com/to/BTrikxm5');
     });
 
-    it('should return # when environment variable is not set', () => {
-      delete process.env.NEXT_PUBLIC_TYPEFORM_URL;
+    it('should return a valid URL', () => {
       const result = getFormUrl();
-      expect(result).toBe('#');
-    });
-
-    it('should return # when base64 decoding fails', () => {
-      process.env.NEXT_PUBLIC_TYPEFORM_URL = 'invalid-base64';
-      const result = getFormUrl();
-      expect(result).toBe('#');
+      expect(result).toMatch(/^https:\/\//);
     });
   });
 
   describe('getLinkedInUrl', () => {
-    it('should decode base64 encoded LinkedIn URL correctly', () => {
+    it('should return the correct LinkedIn URL', () => {
       const result = getLinkedInUrl();
-      expect(result).toBe('https://www.linkedin.com/company/test');
+      expect(result).toBe(
+        'https://www.linkedin.com/company/cypherpunksecurity'
+      );
     });
 
-    it('should return # when environment variable is not set', () => {
-      delete process.env.NEXT_PUBLIC_LINKEDIN_URL;
+    it('should return a valid LinkedIn URL', () => {
       const result = getLinkedInUrl();
-      expect(result).toBe('#');
+      expect(result).toMatch(/^https:\/\/www\.linkedin\.com\//);
     });
   });
 
   describe('getXUrl', () => {
-    it('should decode base64 encoded X URL correctly', () => {
+    it('should return the correct X (Twitter) URL', () => {
       const result = getXUrl();
-      expect(result).toBe('https://x.com/test');
+      expect(result).toBe('https://x.com/Cypherpunk_Sec');
     });
 
-    it('should return # when environment variable is not set', () => {
-      delete process.env.NEXT_PUBLIC_X_URL;
+    it('should return a valid X URL', () => {
       const result = getXUrl();
-      expect(result).toBe('#');
+      expect(result).toMatch(/^https:\/\/x\.com\//);
     });
   });
 });
