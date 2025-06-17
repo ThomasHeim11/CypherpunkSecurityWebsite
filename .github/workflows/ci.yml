@@ -121,17 +121,6 @@ jobs:
       - name: 🔒 NPM Security Audit
         run: npm audit --audit-level=moderate
 
-      - name: 🔍 CodeQL Analysis
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: 🔍 CodeQL Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: 🔍 CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
       - name: 🔐 Snyk Security Scan
         uses: snyk/actions/node@master
         env:

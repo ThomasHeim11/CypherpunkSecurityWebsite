@@ -62,12 +62,12 @@ jobs:
         with:
           args: --sarif-file-output=snyk.sarif || true
 
-      - name: 📊 Upload Snyk Results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+      - name: 💾 Archive Snyk Results
+        uses: actions/upload-artifact@v4
         if: always() && hashFiles('snyk.sarif') != ''
         with:
-          sarif_file: snyk.sarif
-          category: snyk-dependencies
+          name: snyk-scan-results
+          path: snyk.sarif
 
       - name: ⚠️ Alternative Security Check (No Snyk Token)
         if: env.SNYK_TOKEN == ''
@@ -113,8 +113,9 @@ jobs:
           echo "## 🔍 SAST Analysis Summary" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ ESLint security rules" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ TypeScript type checking" >> $GITHUB_STEP_SUMMARY
-          echo "- ⚠️ Enable Code Scanning in repository settings for advanced analysis" >> $GITHUB_STEP_SUMMARY
-          echo "- ℹ️ Advanced tools available with proper tokens" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Basic static analysis complete" >> $GITHUB_STEP_SUMMARY
+          echo "- ℹ️ Security scan results stored as artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- 💡 For advanced CodeQL analysis: make repository public or upgrade to GitHub Enterprise" >> $GITHUB_STEP_SUMMARY
 
   # ===========================
   # SECRETS SCANNING
@@ -210,12 +211,12 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
 
-      - name: 📊 Upload Trivy scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+      - name: 💾 Archive Trivy scan results
+        uses: actions/upload-artifact@v4
         if: always() && hashFiles('trivy-results.sarif') != ''
         with:
-          sarif_file: 'trivy-results.sarif'
-          category: 'trivy-container'
+          name: trivy-scan-results
+          path: 'trivy-results.sarif'
 
   # ===========================
   # LICENSE COMPLIANCE
