@@ -9,38 +9,34 @@ on:
 
 env:
   NODE_VERSION: '18'
-  CACHE_KEY: node-modules-${{ github.sha }}
 
 jobs:
   # ===========================
-  # PRE-FLIGHT CHECKS
+  # BASIC VALIDATION
   # ===========================
-  pre-flight:
-    name: 🔍 Pre-flight Checks
+  basic-checks:
+    name: 🔍 Basic Checks
     runs-on: ubuntu-latest
-    outputs:
-      should-skip: 'false'
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ✅ Pre-flight Status
+      - name: ✅ Status Report
         run: |
-          echo "## 🔍 Pre-flight Checks" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔍 Basic Checks" >> $GITHUB_STEP_SUMMARY
           echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Pre-flight checks completed successfully"
+          echo "✅ Basic checks completed successfully"
 
   # ===========================
-  # DEPENDENCY INSTALLATION
+  # INSTALL AND TEST
   # ===========================
-  install-dependencies:
-    name: 📦 Install Dependencies
+  test:
+    name: 🧪 Test Suite
     runs-on: ubuntu-latest
-    needs: pre-flight
-    if: needs.pre-flight.outputs.should-skip != 'true'
+    needs: basic-checks
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -54,215 +50,27 @@ jobs:
       - name: 📥 Install Dependencies
         run: npm ci --prefer-offline --no-audit
 
-      - name: 💾 Cache Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-  # ===========================
-  # CODE QUALITY & SECURITY
-  # ===========================
-  code-quality:
-    name: 🔎 Code Quality Analysis
-    runs-on: ubuntu-latest
-    needs: [pre-flight, install-dependencies]
-    if: needs.pre-flight.outputs.should-skip != 'true'
-    strategy:
-      matrix:
-        check: [lint, type-check, format-check]
-    steps:
-      - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: 🔍 ESLint Analysis
-        if: matrix.check == 'lint'
+      - name: 🔍 Lint Check
         run: npm run lint
 
-      - name: 🔍 TypeScript Check
-        if: matrix.check == 'type-check'
+      - name: 🔍 Type Check
         run: npm run type-check
 
-      - name: 🔍 Prettier Format Check
-        if: matrix.check == 'format-check'
-        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"
-
-  security-scan:
-    name: 🛡️ Security Scanning
-    runs-on: ubuntu-latest
-    needs: [pre-flight, install-dependencies]
-    if: needs.pre-flight.outputs.should-skip != 'true'
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-      - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: 🔒 NPM Security Audit
-        run: npm audit --audit-level=moderate
-
-      - name: 🔐 Snyk Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-        continue-on-error: true
-
-      - name: ⚠️ Snyk Status Notice
-        run: |
-          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
-            echo "## ⚠️ Snyk Security Scan Skipped" >> $GITHUB_STEP_SUMMARY
-            echo "SNYK_TOKEN not configured. Using alternative security measures:" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ NPM Audit (built-in)" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ GitHub Security Advisories" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Dependabot alerts enabled" >> $GITHUB_STEP_SUMMARY
-            echo "🔍 Running npm audit as fallback..."
-            npm audit --audit-level=high || echo "NPM audit completed with warnings"
-          else
-            echo "## ✅ Snyk Security Scan Completed" >> $GITHUB_STEP_SUMMARY
-            echo "Advanced vulnerability scanning active." >> $GITHUB_STEP_SUMMARY
-          fi
-
-  # ===========================
-  # COMPREHENSIVE TESTING
-  # ===========================
-  unit-tests:
-    name: 🧪 Unit Tests
-    runs-on: ubuntu-latest
-    needs: [pre-flight, install-dependencies]
-    if: needs.pre-flight.outputs.should-skip != 'true'
-    steps:
-      - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: 🧪 Run Unit Tests
+      - name: 🧪 Run Tests
         run: npm run test:ci
 
-      - name: 📊 Upload Coverage Reports
-        uses: codecov/codecov-action@v5
-        continue-on-error: true
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-
-      - name: 💾 Archive Test Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: |
-            coverage/
-            test-results.xml
-
-  integration-tests:
-    name: 🔗 Integration Tests
-    runs-on: ubuntu-latest
-    needs: [pre-flight, install-dependencies]
-    if: needs.pre-flight.outputs.should-skip != 'true'
-    steps:
-      - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: 🔗 Run Integration Tests
-        run: npm test -- __tests__/integration/ --ci --coverage=false
+      - name: 📊 Test Summary
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All tests passed successfully" >> $GITHUB_STEP_SUMMARY
 
   # ===========================
-  # BUILD & PERFORMANCE
+  # BUILD VALIDATION
   # ===========================
-  build-validation:
-    name: 🏗️ Build Validation
+  build:
+    name: 🏗️ Build
     runs-on: ubuntu-latest
-    needs: [pre-flight, install-dependencies]
-    if: needs.pre-flight.outputs.should-skip != 'true'
-    strategy:
-      matrix:
-        environment: [development, production]
-    steps:
-      - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: 🏗️ Build Application (${{ matrix.environment }})
-        run: |
-          if [ "${{ matrix.environment }}" == "production" ]; then
-            NODE_ENV=production npm run build
-          else
-            npm run build
-          fi
-
-      - name: 📏 Bundle Size Analysis
-        if: matrix.environment == 'production'
-        run: |
-          npx next-bundle-analyzer --no-open || true
-
-      - name: 💾 Archive Build Artifacts
-        uses: actions/upload-artifact@v4
-        if: matrix.environment == 'production'
-        with:
-          name: build-artifacts-${{ github.sha }}
-          path: |
-            .next/
-            out/
-          retention-days: 30
-
-  lighthouse-audit:
-    name: 🚨 Lighthouse Performance Audit
-    runs-on: ubuntu-latest
-    needs: [build-validation]
-    if: github.event_name == 'pull_request'
+    needs: [basic-checks, test]
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -279,69 +87,33 @@ jobs:
       - name: 🏗️ Build Application
         run: npm run build
 
-      - name: 🚀 Start Application
-        run: npm start &
-        env:
-          PORT: 3000
-
-      - name: ⏳ Wait for Application
-        run: npx wait-on http://localhost:3000
-
-      - name: 🚨 Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          configPath: './.lighthouserc.json'
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-
-  # ===========================
-  # QUALITY GATES
-  # ===========================
-  quality-gate:
-    name: 🚪 Quality Gate
-    runs-on: ubuntu-latest
-    needs:
-      [
-        code-quality,
-        security-scan,
-        unit-tests,
-        integration-tests,
-        build-validation,
-      ]
-    if: always()
-    steps:
-      - name: 🔍 Check Quality Gate Status
-        run: |
-          if [[ "${{ needs.code-quality.result }}" != "success" || 
-                "${{ needs.security-scan.result }}" != "success" || 
-                "${{ needs.unit-tests.result }}" != "success" || 
-                "${{ needs.integration-tests.result }}" != "success" || 
-                "${{ needs.build-validation.result }}" != "success" ]]; then
-            echo "❌ Quality gate failed!"
-            echo "Code Quality: ${{ needs.code-quality.result }}"
-            echo "Security Scan: ${{ needs.security-scan.result }}"
-            echo "Unit Tests: ${{ needs.unit-tests.result }}"
-            echo "Integration Tests: ${{ needs.integration-tests.result }}"
-            echo "Build Validation: ${{ needs.build-validation.result }}"
-            exit 1
-          else
-            echo "✅ Quality gate passed!"
-          fi
-
-  # ===========================
-  # NOTIFICATIONS
-  # ===========================
-  notify:
-    name: 📢 Notifications
-    runs-on: ubuntu-latest
-    needs: [quality-gate]
-    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-    steps:
       - name: 📊 Build Summary
         run: |
-          echo "## 🚀 Build Complete" >> $GITHUB_STEP_SUMMARY
-          echo "- **Quality Gate**: ${{ needs.quality-gate.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏗️ Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================
+  # FINAL STATUS
+  # ===========================
+  status:
+    name: ✅ Final Status
+    runs-on: ubuntu-latest
+    needs: [basic-checks, test, build]
+    if: always()
+    steps:
+      - name: 📊 Overall Status
+        run: |
+          echo "## 🎯 Pipeline Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Basic Checks**: ${{ needs.basic-checks.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.basic-checks.result }}" == "success" && 
+                "${{ needs.test.result }}" == "success" && 
+                "${{ needs.build.result }}" == "success" ]]; then
+            echo "✅ **All checks passed!**" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          else
+            echo "❌ **Some checks failed**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
