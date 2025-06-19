@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: 'CypherpunkSecurity',
     images: [
       {
-        url: '/logo.svg',
+        url: '/imageweb.png',
         width: 1200,
         height: 630,
         alt: 'CypherpunkSecurity - Smart Contract Security Audits',
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
       'Professional smart contract security audits and blockchain security services for the decentralized future.',
-    images: ['/logo.svg'],
+    images: ['/imageweb.png'],
   },
   verification: {
     // Add your verification codes here when you have them
