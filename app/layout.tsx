@@ -6,6 +6,7 @@ import ScrollToTop from '../components/ScrollToTop';
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://cypherpunksecurity.io'),
   title: 'CypherpunkSecurity - Smart Contract Security Audits',
   description:
     'Professional smart contract security audits for the decentralized future. Comprehensive vulnerability assessment and security analysis.',
@@ -26,19 +27,28 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
     url: 'https://cypherpunksecurity.io',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
-      'Professional smart contract security audits for the decentralized future.',
+      'Professional smart contract security audits and blockchain security services. Expert vulnerability assessment for DeFi protocols, smart contracts, and Web3 applications.',
+    type: 'website',
+    locale: 'en_US',
     siteName: 'CypherpunkSecurity',
+    images: [
+      {
+        url: '/logo.svg',
+        width: 1200,
+        height: 630,
+        alt: 'CypherpunkSecurity - Smart Contract Security Audits',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
-      'Professional smart contract security audits for the decentralized future.',
+      'Professional smart contract security audits and blockchain security services for the decentralized future.',
+    images: ['/logo.svg'],
   },
   verification: {
     // Add your verification codes here when you have them
@@ -64,6 +74,26 @@ export default function RootLayout({
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+        />
+
+        {/* Social Media Meta Tags */}
+        <meta
+          property="og:image"
+          content="https://cypherpunksecurity.io/og-image.svg"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="CypherpunkSecurity - Smart Contract Security Audits"
+        />
+        <meta
+          name="twitter:image"
+          content="https://cypherpunksecurity.io/og-image.svg"
+        />
+        <meta
+          name="twitter:image:alt"
+          content="CypherpunkSecurity - Smart Contract Security Audits"
         />
 
         {/* Security Meta Tags */}
