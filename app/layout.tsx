@@ -6,6 +6,7 @@ import ScrollToTop from '../components/ScrollToTop';
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://cypherpunksecurity.io'),
   title: 'CypherpunkSecurity - Smart Contract Security Audits',
   description:
     'Professional smart contract security audits for the decentralized future. Comprehensive vulnerability assessment and security analysis.',
@@ -26,20 +27,19 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
     url: 'https://cypherpunksecurity.io',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
-      'Professional smart contract security audits for the decentralized future.',
+      'Professional smart contract security audits and blockchain security services. Expert vulnerability assessment for DeFi protocols, smart contracts, and Web3 applications.',
+    type: 'website',
+    locale: 'en_US',
     siteName: 'CypherpunkSecurity',
     images: [
       {
-        url: 'https://cypherpunksecurity.io/og-image.svg',
+        url: '/logo.svg',
         width: 1200,
         height: 630,
         alt: 'CypherpunkSecurity - Smart Contract Security Audits',
-        type: 'image/svg+xml',
       },
     ],
   },
@@ -47,10 +47,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
-      'Professional smart contract security audits for the decentralized future.',
-    images: ['https://cypherpunksecurity.io/og-image.svg'],
-    creator: '@CypherpunkSec',
-    site: '@CypherpunkSec',
+      'Professional smart contract security audits and blockchain security services for the decentralized future.',
+    images: ['/logo.svg'],
   },
   verification: {
     // Add your verification codes here when you have them
