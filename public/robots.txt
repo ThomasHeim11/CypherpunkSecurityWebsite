@@ -20,7 +20,7 @@ Disallow: /node_modules/
 # Allow security.txt for responsible disclosure
 Allow: /.well-known/security.txt
 
-Sitemap: https://cypherpunksecurity.com/sitemap.xml
+Sitemap: https://cypherpunksecurity.io/sitemap.xml
 
 # Crawl-delay for aggressive bots
 User-agent: *

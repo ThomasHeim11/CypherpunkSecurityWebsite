@@ -55,7 +55,7 @@ describe('Layout', () => {
 
     it('has correct OpenGraph configuration', () => {
       expect(metadata.openGraph).toMatchObject({
-        url: 'https://cypherpunksecurity.com',
+        url: 'https://cypherpunksecurity.io',
         title: 'CypherpunkSecurity - Smart Contract Security Audits',
       });
       expect(metadata.openGraph?.locale).toBe('en_US');

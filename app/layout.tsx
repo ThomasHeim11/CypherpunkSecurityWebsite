@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://cypherpunksecurity.com',
+    url: 'https://cypherpunksecurity.io',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
       'Professional smart contract security audits for the decentralized future.',
@@ -149,8 +149,8 @@ export default function RootLayout({
               name: 'CypherpunkSecurity',
               description:
                 'Professional smart contract security audits and blockchain security services',
-              url: 'https://cypherpunksecurity.com',
-              logo: 'https://cypherpunksecurity.com/logo.svg',
+              url: 'https://cypherpunksecurity.io',
+              logo: 'https://cypherpunksecurity.io/logo.svg',
               sameAs: [],
               contactPoint: {
                 '@type': 'ContactPoint',

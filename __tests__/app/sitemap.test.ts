@@ -21,7 +21,7 @@ describe('sitemap', () => {
 
   it('should include all expected URLs with correct structure', () => {
     const result = sitemap();
-    const baseUrl = 'https://cypherpunksecurity.com';
+    const baseUrl = 'https://cypherpunksecurity.io';
 
     const expectedUrls = [
       baseUrl,
@@ -90,7 +90,7 @@ describe('sitemap', () => {
   it('should have home page with highest priority', () => {
     const result = sitemap();
     const homePage = result.find(
-      entry => entry.url === 'https://cypherpunksecurity.com'
+      entry => entry.url === 'https://cypherpunksecurity.io'
     );
 
     expect(homePage?.priority).toBe(1);

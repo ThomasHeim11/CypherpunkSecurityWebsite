@@ -68,7 +68,7 @@ jobs:
     if: needs.validate-deployment.outputs.target-environment == 'staging' && needs.validate-deployment.outputs.should-deploy == 'true'
     environment:
       name: staging
-      url: https://staging.cypherpunksecurity.com
+      url: https://staging.cypherpunksecurity.io
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -106,9 +106,9 @@ jobs:
         if: ${{ !github.event.inputs.skip_tests }}
         run: |
           echo "🧪 Running smoke tests against staging..."
-          npx wait-on https://staging.cypherpunksecurity.com --timeout ${{ env.DEPLOYMENT_TIMEOUT }}
+          npx wait-on https://staging.cypherpunksecurity.io --timeout ${{ env.DEPLOYMENT_TIMEOUT }}
           # Add your smoke tests here
-          curl -f https://staging.cypherpunksecurity.com || exit 1
+          curl -f https://staging.cypherpunksecurity.io || exit 1
 
   # ===========================
   # PRODUCTION DEPLOYMENT
@@ -120,7 +120,7 @@ jobs:
     if: needs.validate-deployment.outputs.target-environment == 'production' && needs.validate-deployment.outputs.should-deploy == 'true'
     environment:
       name: production
-      url: https://cypherpunksecurity.com
+      url: https://cypherpunksecurity.io
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -162,9 +162,9 @@ jobs:
         if: ${{ !github.event.inputs.skip_tests }}
         run: |
           echo "🧪 Running health checks against production..."
-          npx wait-on https://cypherpunksecurity.com --timeout ${{ env.DEPLOYMENT_TIMEOUT }}
-          curl -f https://cypherpunksecurity.com || exit 1
-          curl -f https://cypherpunksecurity.com/api/health || echo "Health endpoint not available"
+          npx wait-on https://cypherpunksecurity.io --timeout ${{ env.DEPLOYMENT_TIMEOUT }}
+          curl -f https://cypherpunksecurity.io || exit 1
+          curl -f https://cypherpunksecurity.io/api/health || echo "Health endpoint not available"
 
       - name: 🔄 Invalidate CDN Cache
         run: |
@@ -206,7 +206,7 @@ jobs:
         if: matrix.test-type == 'accessibility'
         run: |
           echo "♿ Running accessibility tests..."
-          npx @axe-core/cli --exit https://staging.cypherpunksecurity.com || true
+          npx @axe-core/cli --exit https://staging.cypherpunksecurity.io || true
 
       - name: ⚡ Performance Tests
         if: matrix.test-type == 'performance'

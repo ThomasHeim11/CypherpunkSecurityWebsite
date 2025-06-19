@@ -87,21 +87,21 @@
 
 # Redirect HTTP to HTTPS
 [[redirects]]
-  from = "http://cypherpunksecurity.com/*"
-  to = "https://cypherpunksecurity.com/:splat"
+  from = "http://cypherpunksecurity.io/*"
+  to = "https://cypherpunksecurity.io/:splat"
   status = 301
   force = true
 
 [[redirects]]
-  from = "http://www.cypherpunksecurity.com/*"
-  to = "https://cypherpunksecurity.com/:splat"
+  from = "http://www.cypherpunksecurity.io/*"
+  to = "https://cypherpunksecurity.io/:splat"
   status = 301
   force = true
 
 # Redirect www to non-www
 [[redirects]]
-  from = "https://www.cypherpunksecurity.com/*"
-  to = "https://cypherpunksecurity.com/:splat"
+  from = "https://www.cypherpunksecurity.io/*"
+  to = "https://cypherpunksecurity.io/:splat"
   status = 301
   force = true
 
