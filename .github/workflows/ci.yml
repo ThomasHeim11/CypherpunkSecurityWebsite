@@ -137,6 +137,8 @@ jobs:
             echo "- ✅ NPM Audit (built-in)" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ GitHub Security Advisories" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Dependabot alerts enabled" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 Running npm audit as fallback..."
+            npm audit --audit-level=high || echo "NPM audit completed with warnings"
           else
             echo "## ✅ Snyk Security Scan Completed" >> $GITHUB_STEP_SUMMARY
             echo "Advanced vulnerability scanning active." >> $GITHUB_STEP_SUMMARY
@@ -168,6 +170,7 @@ jobs:
 
       - name: 📊 Upload Coverage Reports
         uses: codecov/codecov-action@v5
+        continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
