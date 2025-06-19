@@ -30,6 +30,33 @@ describe('Navigation Component', () => {
     expect(screen.getByText('Reports')).toBeInTheDocument();
   });
 
+  it('logo links to homepage correctly', () => {
+    render(<Navigation onRequestAudit={mockOnRequestAudit} />);
+
+    const logoLink = screen.getByRole('link', {
+      name: /cypherpunksecurity - go to homepage/i,
+    });
+
+    expect(logoLink).toBeInTheDocument();
+    expect(logoLink).toHaveAttribute('href', '/');
+    expect(logoLink).toHaveClass('group');
+  });
+
+  it('logo link contains both logo and company name', () => {
+    render(<Navigation onRequestAudit={mockOnRequestAudit} />);
+
+    const logoLink = screen.getByRole('link', {
+      name: /cypherpunksecurity - go to homepage/i,
+    });
+
+    // Check that the link contains the logo
+    expect(logoLink.querySelector('[data-testid="logo"]')).toBeInTheDocument();
+
+    // Check that the link contains the company name
+    expect(logoLink).toHaveTextContent('CypherpunkSecurity');
+    expect(logoLink).toHaveTextContent('Smart Contract Audits');
+  });
+
   it('calls onRequestAudit when desktop audit button is clicked', () => {
     render(<Navigation onRequestAudit={mockOnRequestAudit} />);
 
