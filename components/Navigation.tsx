@@ -31,20 +31,24 @@ export default function Navigation({ onRequestAudit }: NavigationProps) {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3 sm:space-x-8">
-              <div className="flex items-center space-x-3">
+              <Link
+                href="/"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200 group"
+                aria-label="CypherpunkSecurity - Go to homepage"
+              >
                 <div className="relative">
-                  <Logo className="h-10 w-10 sm:h-12 sm:w-12 text-neon-green" />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full animate-terminal-blink"></div>
+                  <Logo className="h-10 w-10 sm:h-12 sm:w-12 text-neon-green group-hover:text-neon-green/90 transition-colors" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full animate-terminal-blink group-hover:bg-neon-green/90"></div>
                 </div>
                 <div>
-                  <span className="text-lg sm:text-xl font-bold text-white">
+                  <span className="text-lg sm:text-xl font-bold text-white group-hover:text-gray-100 transition-colors">
                     CypherpunkSecurity
                   </span>
-                  <div className="text-xs text-neon-green uppercase tracking-wider font-mono hidden sm:block">
+                  <div className="text-xs text-neon-green uppercase tracking-wider font-mono hidden sm:block group-hover:text-neon-green/90 transition-colors">
                     Smart Contract Audits
                   </div>
                 </div>
-              </div>
+              </Link>
               <nav className="hidden lg:flex space-x-8">
                 <a
                   href="#services"
