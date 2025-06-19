@@ -33,12 +33,24 @@ export const metadata: Metadata = {
     description:
       'Professional smart contract security audits for the decentralized future.',
     siteName: 'CypherpunkSecurity',
+    images: [
+      {
+        url: 'https://cypherpunksecurity.io/og-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'CypherpunkSecurity - Smart Contract Security Audits',
+        type: 'image/svg+xml',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'CypherpunkSecurity - Smart Contract Security Audits',
     description:
       'Professional smart contract security audits for the decentralized future.',
+    images: ['https://cypherpunksecurity.io/og-image.svg'],
+    creator: '@CypherpunkSec',
+    site: '@CypherpunkSec',
   },
   verification: {
     // Add your verification codes here when you have them
@@ -64,6 +76,26 @@ export default function RootLayout({
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+        />
+
+        {/* Social Media Meta Tags */}
+        <meta
+          property="og:image"
+          content="https://cypherpunksecurity.io/og-image.svg"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="CypherpunkSecurity - Smart Contract Security Audits"
+        />
+        <meta
+          name="twitter:image"
+          content="https://cypherpunksecurity.io/og-image.svg"
+        />
+        <meta
+          name="twitter:image:alt"
+          content="CypherpunkSecurity - Smart Contract Security Audits"
         />
 
         {/* Security Meta Tags */}
