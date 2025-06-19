@@ -19,27 +19,18 @@ jobs:
     name: 🔍 Pre-flight Checks
     runs-on: ubuntu-latest
     outputs:
-      should-skip: ${{ steps.skip-check.outputs.should-skip }}
+      should-skip: 'false'
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Skip Duplicate Actions
-        id: skip-check
-        uses: fkirc/skip-duplicate-actions@v5
-        with:
-          concurrent_skipping: 'never'
-          skip_after_successful_duplicate: 'false'
-          paths_ignore: '["**/*.md", "docs/**", ".gitignore", "README.md"]'
-          do_not_skip: '["workflow_dispatch", "schedule"]'
-
       - name: ✅ Pre-flight Status
         run: |
           echo "## 🔍 Pre-flight Checks" >> $GITHUB_STEP_SUMMARY
-          echo "- **Should Skip**: ${{ steps.skip-check.outputs.should-skip }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "✅ Pre-flight checks completed successfully"
 
   # ===========================
