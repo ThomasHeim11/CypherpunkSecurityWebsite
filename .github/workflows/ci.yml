@@ -293,6 +293,8 @@ jobs:
   quality-gate:
     name: 🚪 Quality Gate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         code-quality,
