@@ -21,6 +21,12 @@ on:
         default: false
         type: boolean
 
+# Global permissions for deployment workflow
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
 env:
   NODE_VERSION: '18'
   DEPLOYMENT_TIMEOUT: '600s'
@@ -33,6 +39,8 @@ jobs:
     name: 🔍 Validate Deployment
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
     outputs:
       should-deploy: ${{ steps.validation.outputs.should-deploy }}
       target-environment: ${{ steps.validation.outputs.target-environment }}

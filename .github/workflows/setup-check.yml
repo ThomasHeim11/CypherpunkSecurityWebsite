@@ -5,10 +5,16 @@ on:
   schedule:
     - cron: '0 9 * * 1' # Weekly on Monday
 
+# Global permissions for setup check
+permissions:
+  contents: read
+
 jobs:
   setup-check:
     name: 🔍 Check CI/CD Setup
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: 🔍 Check Required Secrets
         run: |

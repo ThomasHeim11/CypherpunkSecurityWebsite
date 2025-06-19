@@ -10,6 +10,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Global permissions for security scanning
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 env:
   NODE_VERSION: '18'
 
@@ -83,6 +89,8 @@ jobs:
   sast-scan:
     name: 🔍 Static Application Security Testing
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -123,6 +131,8 @@ jobs:
   secrets-scan:
     name: 🔐 Secrets Detection
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -185,6 +195,8 @@ jobs:
     name: 🐳 Container Security Scan
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
