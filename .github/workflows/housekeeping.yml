@@ -6,6 +6,12 @@ on:
     - cron: '0 3 * * 0'
   workflow_dispatch:
 
+# Global permissions for housekeeping workflow
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
 env:
   NODE_VERSION: '18'
 
@@ -16,6 +22,8 @@ jobs:
   dependency-maintenance:
     name: 🔧 Dependency Maintenance
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4

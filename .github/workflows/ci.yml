@@ -7,6 +7,11 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+# Global permissions for the workflow (principle of least privilege)
+permissions:
+  contents: read
+  pull-requests: read
+
 env:
   NODE_VERSION: '18'
   CACHE_KEY: node-modules-${{ github.sha }}
@@ -18,6 +23,9 @@ jobs:
   pre-flight:
     name: 🔍 Pre-flight Checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
       should-skip: ${{ steps.skip-check.outputs.should-skip }}
     steps:
@@ -37,6 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-flight
     if: needs.pre-flight.outputs.should-skip != 'true'
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -68,6 +78,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pre-flight, install-dependencies]
     if: needs.pre-flight.outputs.should-skip != 'true'
+    permissions:
+      contents: read
     strategy:
       matrix:
         check: [lint, type-check, format-check]
@@ -150,6 +162,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pre-flight, install-dependencies]
     if: needs.pre-flight.outputs.should-skip != 'true'
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
@@ -188,6 +202,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pre-flight, install-dependencies]
     if: needs.pre-flight.outputs.should-skip != 'true'
+    permissions:
+      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
