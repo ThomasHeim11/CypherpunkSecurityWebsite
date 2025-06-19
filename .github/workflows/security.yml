@@ -10,6 +10,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  issues: write
+
 env:
   NODE_VERSION: '18'
 
@@ -20,10 +26,6 @@ jobs:
   dependency-scan:
     name: 🔍 Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
     steps:
       - name: 🛒 Checkout Repository
         uses: actions/checkout@v4
