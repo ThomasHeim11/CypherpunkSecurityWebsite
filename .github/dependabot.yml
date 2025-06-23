@@ -44,9 +44,10 @@ updates:
       day: 'monday'
       time: '06:00'
       timezone: 'UTC'
+    target-branch: 'develop'
     open-pull-requests-limit: 3
     reviewers:
-      - 'thomasheim'
+      - 'ThomasHeim11'
     commit-message:
       prefix: 'docker'
       include: 'scope'
