@@ -1,29 +1,15 @@
 version: 2
 updates:
-  # Production dependencies
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-    target-branch: 'develop'
-    labels:
-      - 'dependencies'
-      - 'automated'
-    reviewers:
-      - 'ThomasHeim11'
-    open-pull-requests-limit: 5
-
-  # Security updates (more frequent)
+  # NPM Dependencies (both regular and security)
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'daily'
     target-branch: 'develop'
     labels:
-      - 'security'
       - 'dependencies'
+    reviewers:
+      - 'ThomasHeim11'
     open-pull-requests-limit: 10
 
   # GitHub Actions
