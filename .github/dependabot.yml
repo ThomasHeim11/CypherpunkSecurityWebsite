@@ -1,69 +1,40 @@
 version: 2
 updates:
-  # NPM Dependencies
+  # Production dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    target-branch: 'develop'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    reviewers:
+      - 'ThomasHeim11'
+    open-pull-requests-limit: 5
+
+  # Security updates (more frequent)
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'daily'
-      time: '06:00'
-      timezone: 'UTC'
-    open-pull-requests-limit: 10
     target-branch: 'develop'
-    reviewers:
-      - 'thomasheim'
-    assignees:
-      - 'thomasheim'
-    commit-message:
-      prefix: 'deps'
-      prefix-development: 'deps-dev'
-      include: 'scope'
     labels:
+      - 'security'
       - 'dependencies'
-      - 'auto-update'
-    allow:
-      - dependency-type: 'direct'
-      - dependency-type: 'indirect'
-    ignore:
-      # Ignore major version updates for stable dependencies
-      - dependency-name: 'react'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'react-dom'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'next'
-        update-types: ['version-update:semver-major']
-    groups:
-      react-ecosystem:
-        patterns:
-          - 'react*'
-          - '@types/react*'
-      testing-framework:
-        patterns:
-          - 'jest*'
-          - '@testing-library/*'
-          - '@types/jest'
-      linting-tools:
-        patterns:
-          - 'eslint*'
-          - 'prettier*'
-          - '@typescript-eslint/*'
+    open-pull-requests-limit: 10
 
   # GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '06:00'
-      timezone: 'UTC'
-    open-pull-requests-limit: 5
-    reviewers:
-      - 'thomasheim'
-    commit-message:
-      prefix: 'ci'
-      include: 'scope'
+      interval: 'monthly'
+    target-branch: 'develop'
     labels:
       - 'github-actions'
-      - 'auto-update'
+      - 'dependencies'
 
   # Docker (if using containers)
   - package-ecosystem: 'docker'
