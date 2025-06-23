@@ -246,17 +246,14 @@ npm run test:ci
 ### 2. Configure GitHub Repository
 
 1. **Enable GitHub Actions**
-
    - Go to Settings → Actions → General
    - Allow all actions and reusable workflows
 
 2. **Configure Secrets**
-
    - Add all required secrets listed above
    - Ensure proper permissions for each secret
 
 3. **Set Branch Protection Rules**
-
    - Configure main branch protection
    - Add required status checks
    - Enable administrator enforcement
