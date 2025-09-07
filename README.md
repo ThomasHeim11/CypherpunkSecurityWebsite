@@ -1,7 +1,7 @@
 # CypherpunkSecurity
 
 A professional cyberpunk-themed website for CypherpunkSecurity, specializing in smart contract
-audits and blockchain security.
+audits and blockchain security. Test.
 
 ## Features
 
