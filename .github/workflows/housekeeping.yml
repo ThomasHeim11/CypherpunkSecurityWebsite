@@ -126,7 +126,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🗑️ Clean Old Workflow Runs
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { data: workflows } = await github.rest.actions.listRepoWorkflows({
