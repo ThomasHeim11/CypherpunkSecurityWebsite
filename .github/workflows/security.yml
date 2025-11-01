@@ -47,7 +47,7 @@ jobs:
         run: npm audit --audit-level=moderate --json > npm-audit.json || true
 
       - name: 🔍 Upload NPM Audit Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: npm-audit-results
           path: npm-audit.json
@@ -69,7 +69,7 @@ jobs:
           args: --sarif-file-output=snyk.sarif || true
 
       - name: 💾 Archive Snyk Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always() && hashFiles('snyk.sarif') != ''
         with:
           name: snyk-scan-results
@@ -227,7 +227,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: 💾 Archive Trivy scan results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           name: trivy-scan-results
@@ -291,7 +291,7 @@ jobs:
           fi
 
       - name: 📊 Upload License Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: license-report
           path: licenses.json
