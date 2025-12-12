@@ -80,7 +80,7 @@ jobs:
         run: |
           echo "⚠️ Snyk token not configured. Running alternative security checks..."
           echo "🔍 Running npm audit with high severity threshold..."
-          npm audit --audit-level=high || true
+          npm audit --audit-level=high
           echo "✅ Basic security checks completed"
 
   # ===========================
