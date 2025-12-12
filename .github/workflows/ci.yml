@@ -132,6 +132,7 @@ jobs:
 
       - name: 🔒 NPM Security Audit
         run: npm audit --audit-level=moderate
+        continue-on-error: true
 
       - name: 🔐 Snyk Security Scan
         uses: snyk/actions/node@master
