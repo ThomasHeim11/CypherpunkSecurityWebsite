@@ -48,7 +48,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/scheduler": "^0.26.0",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.22",
     "eslint": "^9.30.1",
     "eslint-config-next": "15.3.5",
     "husky": "^9.1.7",
