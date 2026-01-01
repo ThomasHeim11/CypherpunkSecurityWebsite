@@ -50,7 +50,7 @@ jobs:
           npm list --all > dependency-tree.txt || true
 
       - name: 📋 Upload Dependency Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-reports
           path: |
@@ -103,7 +103,7 @@ jobs:
           echo "Coverage report generated on: $(date)" >> code-stats.md
 
       - name: 📋 Upload Code Analysis
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: code-analysis
           path: |
@@ -193,7 +193,7 @@ jobs:
           echo "Generated on: $(date)" >> doc-report.md
 
       - name: 📋 Upload Documentation Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: documentation-report
           path: |
@@ -232,7 +232,7 @@ jobs:
           echo "Generated on: $(date)" >> bundle-report.md
 
       - name: 📋 Upload Performance Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: performance-report
           path: bundle-report.md
