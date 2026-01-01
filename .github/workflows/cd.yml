@@ -46,7 +46,7 @@ jobs:
       target-environment: ${{ steps.validation.outputs.target-environment }}
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔍 Validate Deployment Conditions
         id: validation
@@ -79,7 +79,7 @@ jobs:
       url: https://staging.cypherpunksecurity.io
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -131,7 +131,7 @@ jobs:
       url: https://cypherpunksecurity.io
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -192,7 +192,7 @@ jobs:
         test-type: [e2e, accessibility, performance]
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -234,7 +234,7 @@ jobs:
       name: ${{ needs.validate-deployment.outputs.target-environment }}
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔄 Trigger Rollback
         run: |
