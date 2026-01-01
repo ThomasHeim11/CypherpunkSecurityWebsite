@@ -49,7 +49,7 @@ jobs:
       contents: read
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -85,7 +85,7 @@ jobs:
         check: [lint, type-check, format-check]
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -119,7 +119,7 @@ jobs:
       contents: read
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -166,7 +166,7 @@ jobs:
       contents: read
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -206,7 +206,7 @@ jobs:
       contents: read
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -233,7 +233,7 @@ jobs:
         environment: [development, production]
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -274,7 +274,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: 🛒 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
